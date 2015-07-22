@@ -10,6 +10,11 @@ public class Dawg {
     private int totalEdges = 0;
 
     private String currentPrefix;
+    
+    public DawgState getRoot()
+    {
+    	return this.root;
+    }
 
     public Dawg(List<String> words) {
         root = new DawgState();

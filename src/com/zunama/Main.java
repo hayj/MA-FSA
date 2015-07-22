@@ -15,7 +15,7 @@ public class Main {
     public static void main(String[] args) {
         try {
 
-            URL url = Main.class.getClassLoader().getResource("wordlist.txt");
+            URL url = Main.class.getClassLoader().getResource("/home/julien/Workspace/MA-FSA/data/wordlist.txt");
             URI uri = null;
 
             try {

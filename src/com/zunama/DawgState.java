@@ -35,6 +35,10 @@ public class DawgState {
         return edges;
     }
 
+    public DawgState getEdge(char c) {
+        return this.edges.get(c);
+    }
+
     public boolean isEndWord() {
         return endWord;
     }
