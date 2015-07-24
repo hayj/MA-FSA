@@ -2,183 +2,215 @@ package com.zunama;
 
 import java.util.*;
 
-public class Dawg {
+public class Dawg
+{
+	private DawgState root;
+	private String previousWord = "";
+	private Map<String, DawgState> register = new HashMap<String, DawgState>();
+	private int totalEdges = 0;
+	private String currentPrefix;
 
-    private DawgState root;
-    private String previousWord = "";
-    private Map<String, DawgState> register = new HashMap<String, DawgState>();
-    private int totalEdges = 0;
+	public interface Wordable extends Comparable<Wordable>
+	{
+		public abstract String getWord();
+	}
 
-    private String currentPrefix;
-    
-    public DawgState getRoot()
-    {
-    	return this.root;
-    }
+	public DawgState getRoot()
+	{
+		return this.root;
+	}
 
-    public Dawg(List<String> words) {
-        root = new DawgState();
-        root.setEndWord(false);
-        insertWords(words);
-        register = null;
-    }
+	public Dawg(List<Wordable> wordables)
+	{
+		root = new DawgState();
+		root.setEndWord(false);
+		insertWords(wordables);
+		register = null;
+	}
 
-    public boolean search(String word) {
-        DawgState current = root;
+	public boolean search(String word)
+	{
+		DawgState current = root;
 
-        for (Character c : word.toCharArray()) {
-            if (current.getEdges().containsKey(c))
-                current = current.getEdges().get(c);
-            else
-                return false;
-        }
+		for(Character c : word.toCharArray())
+		{
+			if(current.getEdges().containsKey(c))
+				current = current.getEdges().get(c);
+			else
+				return false;
+		}
 
-        return current.isEndWord();
-    }
+		return current.isEndWord();
+	}
 
-    public List<String> prefixSearch(String prefix) {
+	public List<String> prefixSearch(String prefix)
+	{
 
-        if(prefix == null)
-            throw new RuntimeException("Prefix is set to null");
+		if(prefix == null)
+			throw new RuntimeException("Prefix is set to null");
 
-        DawgState current = root;
-        currentPrefix = prefix.toLowerCase();
-        List<String> words = new ArrayList<String>();
+		DawgState current = root;
+		currentPrefix = prefix.toLowerCase();
+		List<String> words = new ArrayList<String>();
 
-        for (char letter : prefix.toLowerCase().toCharArray()) {
-            if(current.getEdges().containsKey(letter))
-                current = current.getEdges().get(letter);
-            else
-                return words;
-        }
+		for(char letter : prefix.toLowerCase().toCharArray())
+		{
+			if(current.getEdges().containsKey(letter))
+				current = current.getEdges().get(letter);
+			else
+				return words;
+		}
 
-        prefixSearch(current, words, "");
-        return words;
-    }
+		prefixSearch(current, words, "");
+		return words;
+	}
 
-    public boolean prefixExist(String prefix) {
+	public boolean prefixExist(String prefix)
+	{
 
-        if(prefix == null)
-            throw new RuntimeException("Prefix is set to null");
+		if(prefix == null)
+			throw new RuntimeException("Prefix is set to null");
 
-        DawgState current = root;
+		DawgState current = root;
 
-        for(char c : prefix.toCharArray()) {
-            if(current.getEdges().containsKey(c))
-                current = current.getEdges().get(c);
-            else
-                return false;
-        }
+		for(char c : prefix.toCharArray())
+		{
+			if(current.getEdges().containsKey(c))
+				current = current.getEdges().get(c);
+			else
+				return false;
+		}
 
-        return true;
-    }
+		return true;
+	}
 
-    public int getTotalEdges() {
-        return totalEdges;
-    }
+	public int getTotalEdges()
+	{
+		return totalEdges;
+	}
 
-    private void prefixSearch(DawgState state, List<String> words, String currentString) {
-        if (state.isEndWord()) {
-            words.add(currentPrefix + currentString);
-        }
+	private void prefixSearch(DawgState state, List<String> words, String currentString)
+	{
+		if(state.isEndWord())
+		{
+			words.add(currentPrefix + currentString);
+		}
 
-        for (Character key : state.getEdges().keySet()) {
-            DawgState nextStateToVist = state.getEdges().get(key);
-            String newString = currentString + key;
+		for(Character key : state.getEdges().keySet())
+		{
+			DawgState nextStateToVist = state.getEdges().get(key);
+			String newString = currentString + key;
 
-            prefixSearch(nextStateToVist, words, newString);
-        }
-    }
+			prefixSearch(nextStateToVist, words, newString);
+		}
+	}
 
-    private void insertWords(List<String> words) {
+	private void insertWords(List<Wordable> wordables)
+	{
+		Collections.sort(wordables);
+		for(Wordable wordable : wordables)
+		{
+			insertWord(wordable);
+		}
+	}
 
-        Collections.sort(words);
-        for (String word : words) {
-            insertWord(word);
-        }
-    }
+	private void insertWord(Wordable wordable)
+	{
+		String word = wordable.getWord();
+		if(word.compareTo(previousWord) < 0)
+			throw new RuntimeException("Trying to insert a word out of order.");
 
-    private void insertWord(String word) {
-        if (word.compareTo(previousWord) < 0)
-            throw new RuntimeException("Trying to insert a word out of order.");
+		word = word.toLowerCase();
 
-        word = word.toLowerCase();
+		String commonPrefix = getCommonPrefix(word, previousWord);
+		String currentSuffix = word.substring(commonPrefix.length());
 
-        String commonPrefix = getCommonPrefix(word, previousWord);
-        String currentSuffix = word.substring(commonPrefix.length());
+		DawgState lastState = getLastState(commonPrefix);
 
-        DawgState lastState = getLastState(commonPrefix);
+		if(lastState.getEdges().size() > 0)
+		{
+			replaceOrRegister(lastState);
+		}
 
-        if (lastState.getEdges().size() > 0) {
-            replaceOrRegister(lastState);
-        }
+		addSufix(lastState, currentSuffix, wordable);
 
-        addSufix(lastState, currentSuffix);
+		previousWord = word;
+	}
 
-        previousWord = word;
-    }
+	private void addSufix(DawgState lastState, String currentSuffix, Wordable wordable)
+	{
+		char[] wordCharArray = currentSuffix.toCharArray();
 
-    private void addSufix(DawgState lastState, String currentSuffix) {
-        char[] wordCharArray = currentSuffix.toCharArray();
+		for(char c : wordCharArray)
+		{
+			DawgState nextState = new DawgState();
+			lastState.getEdges().put(c, nextState);
+			totalEdges++;
+			lastState = nextState;
+		}
 
-        for (char c : wordCharArray) {
-            DawgState nextState = new DawgState();
-            lastState.getEdges().put(c, nextState);
-            totalEdges++;
-            lastState = nextState;
-        }
+		lastState.setEndWord(true, wordable);
+	}
 
-        lastState.setEndWord(true);
-    }
+	private void replaceOrRegister(DawgState state)
+	{
+		Character c = getMostRecentAddedLetter(state);
+		DawgState child = state.getEdges().get(c);
 
-    private void replaceOrRegister(DawgState state) {
-        Character c = getMostRecentAddedLetter(state);
-        DawgState child = state.getEdges().get(c);
+		if(child.getEdges().size() > 0)
+		{
+			replaceOrRegister(child);
+		}
 
-        if (child.getEdges().size() > 0) {
-            replaceOrRegister(child);
-        }
+		if(register.containsKey(child.toString()))
+		{
+			state.getEdges().put(c, register.get(child.toString()));
+			totalEdges--;
+		}
+		else
+		{
+			register.put(child.toString(), child);
+		}
+	}
 
-        if (register.containsKey(child.toString())) {
-            state.getEdges().put(c, register.get(child.toString()));
-            totalEdges--;
-        } else {
-            register.put(child.toString(), child);
-        }
-    }
+	private Character getMostRecentAddedLetter(DawgState state)
+	{
+		Character out = null;
+		for(Character key : state.getEdges().keySet())
+		{
+			out = key;
+		}
+		return out;
+	}
 
-    private Character getMostRecentAddedLetter(DawgState state) {
-        Character out = null;
-        for (Character key : state.getEdges().keySet()) {
-            out = key;
-        }
-        return out;
-    }
+	private DawgState getLastState(String commonPrefix)
+	{
+		if(commonPrefix == null || commonPrefix.length() == 0)
+			return root;
 
-    private DawgState getLastState(String commonPrefix) {
-        if (commonPrefix == null || commonPrefix.length() == 0)
-            return root;
+		DawgState current = root;
 
-        DawgState current = root;
+		for(char c : commonPrefix.toCharArray())
+		{
+			current = current.getEdges().get(new Character(c));
+		}
 
-        for (char c : commonPrefix.toCharArray()) {
-            current = current.getEdges().get(new Character(c));
-        }
+		return current;
+	}
 
-        return current;
-    }
+	private String getCommonPrefix(String word, String previousWord)
+	{
+		int count = 0;
+		int minCheck = Math.min(word.length(), previousWord.length());
 
-    private String getCommonPrefix(String word, String previousWord) {
-        int count = 0;
-        int minCheck = Math.min(word.length(), previousWord.length());
+		for(int i = 0 ; i < minCheck ; i++)
+		{
+			if(word.charAt(i) == previousWord.charAt(i))
+				count++;
+			else
+				break;
+		}
 
-        for (int i = 0; i < minCheck; i++) {
-            if (word.charAt(i) == previousWord.charAt(i))
-                count++;
-            else
-                break;
-        }
-
-        return word.substring(0, count);
-    }
+		return word.substring(0, count);
+	}
 }

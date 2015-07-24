@@ -3,47 +3,71 @@ package com.zunama;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class DawgState {
-    private static int nextId = 0;
+import com.zunama.Dawg.Wordable;
 
-    private int id;
-    private LinkedHashMap<Character, DawgState> edges = new LinkedHashMap<Character, DawgState>();
-    private boolean endWord = false;
+public class DawgState
+{
+	private static int nextId = 0;
 
-    public DawgState() {
-        id = nextId++;
-    }
+	private int id;
+	private LinkedHashMap<Character, DawgState> edges = new LinkedHashMap<Character, DawgState>();
+	private boolean endWord = false;
 
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
+	private Wordable wordable = null;
 
-        sb.append(endWord);
+	public DawgState()
+	{
+		id = nextId++;
+	}
 
-        for (Map.Entry<Character, DawgState> entry : edges.entrySet()){
-            sb.append(entry.getKey());
-            sb.append(entry.getValue().getId());
-        }
+	public String toString()
+	{
+		StringBuilder sb = new StringBuilder();
 
-        return sb.toString();
-    }
+		sb.append(endWord);
 
-    public int getId() {
-        return id;
-    }
+		for(Map.Entry<Character, DawgState> entry : edges.entrySet())
+		{
+			sb.append(entry.getKey());
+			sb.append(entry.getValue().getId());
+		}
 
-    public LinkedHashMap<Character, DawgState> getEdges() {
-        return edges;
-    }
+		return sb.toString();
+	}
 
-    public DawgState getEdge(char c) {
-        return this.edges.get(c);
-    }
+	public int getId()
+	{
+		return id;
+	}
 
-    public boolean isEndWord() {
-        return endWord;
-    }
+	public LinkedHashMap<Character, DawgState> getEdges()
+	{
+		return edges;
+	}
 
-    public void setEndWord(boolean endWord) {
-        this.endWord = endWord;
-    }
+	public DawgState getEdge(char c)
+	{
+		return this.edges.get(c);
+	}
+
+	public boolean isEndWord()
+	{
+		return endWord;
+	}
+
+	public void setEndWord(boolean endWord)
+	{
+		this.endWord = endWord;
+	}
+
+	public void setEndWord(boolean endWord, Wordable wordable)
+	{
+		this.endWord = endWord;
+		this.wordable = wordable;
+	}
+
+	public Wordable getWordable()
+	{
+		return this.wordable;
+	}
 }
