@@ -67,7 +67,7 @@ public class DawgTestString
 		try
 		{
 			BufferedReader br = new BufferedReader(new FileReader(
-					"/tmp/ikcom-dictionary/liste.de.mots.francais.frgut.txt"));
+					"./data/liste.de.mots.francais.frgut.txt"));
 			String word = "";
 			ArrayList<String> frenchVoc = new ArrayList<String>();
 			while((word = br.readLine()) != null)
