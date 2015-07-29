@@ -1,12 +1,22 @@
-package com.zunama;
+package fr.hayj.dawg;
 
 import java.util.*;
+import java.util.Map.Entry;
 
-public class DawgWordable
+/**
+ * This class does not work because there is commons branch for many words. So
+ * we cant' store an object at the end node.
+ * 
+ * @author julien
+ *
+ */
+@Deprecated
+public class Dawg
 {
-	private DawgStateWordable root;
+
+	private DawgState root;
 	private String previousWord = "";
-	private Map<String, DawgStateWordable> register = new HashMap<String, DawgStateWordable>();
+	private Map<String, DawgState> register = new HashMap<String, DawgState>();
 	private int totalEdges = 0;
 	private String currentPrefix;
 
@@ -15,22 +25,56 @@ public class DawgWordable
 		public abstract String getWord();
 	}
 
-	public DawgStateWordable getRoot()
+	public DawgState getRoot()
 	{
 		return this.root;
 	}
 
-	public DawgWordable(List<Wordable> wordables)
+	public static Dawg wordablesToDawg(List<Wordable> wordables)
 	{
-		root = new DawgStateWordable();
+		ArrayList<String> words = new ArrayList<String>();
+		for(Wordable wordable : wordables)
+			words.add(wordable.getWord());
+		return new Dawg(words);
+	}
+
+	public Dawg(List<String> words)
+	{
+		this.init(words);
+	}
+
+	private void init(List<String> words)
+	{
+		root = new DawgState();
 		root.setEndWord(false);
-		insertWords(wordables);
+		insertWords(words);
 		register = null;
+	}
+
+	public void setWordables(List<Wordable> wordables)
+	{
+		for(Wordable wordable : wordables)
+		{
+			DawgState state = this.getLastState(wordable.getWord());
+			// TODO to delete :
+			if(!state.isEndWord())
+				System.out.println("DawgStateWordable ERROR !!!");
+			state.setWordable(wordable);
+		}
+	}
+
+	public void setSubDawgs(HashMap<String, List<String>> subVocs)
+	{
+		for(Entry<String, List<String>> entry : subVocs.entrySet())
+		{
+			DawgState state = this.getLastState(entry.getKey());
+			state.setSubDawg(new Dawg(entry.getValue()));
+		}
 	}
 
 	public boolean search(String word)
 	{
-		DawgStateWordable current = root;
+		DawgState current = root;
 
 		for(Character c : word.toCharArray())
 		{
@@ -49,7 +93,7 @@ public class DawgWordable
 		if(prefix == null)
 			throw new RuntimeException("Prefix is set to null");
 
-		DawgStateWordable current = root;
+		DawgState current = root;
 		currentPrefix = prefix.toLowerCase();
 		List<String> words = new ArrayList<String>();
 
@@ -71,7 +115,7 @@ public class DawgWordable
 		if(prefix == null)
 			throw new RuntimeException("Prefix is set to null");
 
-		DawgStateWordable current = root;
+		DawgState current = root;
 
 		for(char c : prefix.toCharArray())
 		{
@@ -89,7 +133,7 @@ public class DawgWordable
 		return totalEdges;
 	}
 
-	private void prefixSearch(DawgStateWordable state, List<String> words, String currentString)
+	private void prefixSearch(DawgState state, List<String> words, String currentString)
 	{
 		if(state.isEndWord())
 		{
@@ -98,25 +142,25 @@ public class DawgWordable
 
 		for(Character key : state.getEdges().keySet())
 		{
-			DawgStateWordable nextStateToVist = state.getEdges().get(key);
+			DawgState nextStateToVist = state.getEdges().get(key);
 			String newString = currentString + key;
 
 			prefixSearch(nextStateToVist, words, newString);
 		}
 	}
 
-	private void insertWords(List<Wordable> wordables)
+	private void insertWords(List<String> words)
 	{
-		Collections.sort(wordables);
-		for(Wordable wordable : wordables)
+
+		Collections.sort(words);
+		for(String word : words)
 		{
-			insertWord(wordable);
+			insertWord(word);
 		}
 	}
 
-	private void insertWord(Wordable wordable)
+	private void insertWord(String word)
 	{
-		String word = wordable.getWord();
 		if(word.compareTo(previousWord) < 0)
 			throw new RuntimeException("Trying to insert a word out of order.");
 
@@ -125,37 +169,37 @@ public class DawgWordable
 		String commonPrefix = getCommonPrefix(word, previousWord);
 		String currentSuffix = word.substring(commonPrefix.length());
 
-		DawgStateWordable lastState = getLastState(commonPrefix);
+		DawgState lastState = getLastState(commonPrefix);
 
 		if(lastState.getEdges().size() > 0)
 		{
 			replaceOrRegister(lastState);
 		}
 
-		addSufix(lastState, currentSuffix, wordable);
+		addSufix(lastState, currentSuffix);
 
 		previousWord = word;
 	}
 
-	private void addSufix(DawgStateWordable lastState, String currentSuffix, Wordable wordable)
+	private void addSufix(DawgState lastState, String currentSuffix)
 	{
 		char[] wordCharArray = currentSuffix.toCharArray();
 
 		for(char c : wordCharArray)
 		{
-			DawgStateWordable nextState = new DawgStateWordable();
+			DawgState nextState = new DawgState();
 			lastState.getEdges().put(c, nextState);
 			totalEdges++;
 			lastState = nextState;
 		}
 
-		lastState.setEndWord(true, wordable);
+		lastState.setEndWord(true);
 	}
 
-	private void replaceOrRegister(DawgStateWordable state)
+	private void replaceOrRegister(DawgState state)
 	{
 		Character c = getMostRecentAddedLetter(state);
-		DawgStateWordable child = state.getEdges().get(c);
+		DawgState child = state.getEdges().get(c);
 
 		if(child.getEdges().size() > 0)
 		{
@@ -173,7 +217,7 @@ public class DawgWordable
 		}
 	}
 
-	private Character getMostRecentAddedLetter(DawgStateWordable state)
+	private Character getMostRecentAddedLetter(DawgState state)
 	{
 		Character out = null;
 		for(Character key : state.getEdges().keySet())
@@ -183,12 +227,12 @@ public class DawgWordable
 		return out;
 	}
 
-	private DawgStateWordable getLastState(String commonPrefix)
+	private DawgState getLastState(String commonPrefix)
 	{
 		if(commonPrefix == null || commonPrefix.length() == 0)
 			return root;
 
-		DawgStateWordable current = root;
+		DawgState current = root;
 
 		for(char c : commonPrefix.toCharArray())
 		{

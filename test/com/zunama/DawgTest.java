@@ -12,7 +12,7 @@ import java.util.Map.Entry;
 import org.junit.Test;
 
 
-public class DawgTestString
+public class DawgTest
 {
 	@Test
 	public void test()

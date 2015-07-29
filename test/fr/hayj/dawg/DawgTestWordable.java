@@ -1,4 +1,4 @@
-package com.zunama;
+package fr.hayj.dawg;
 
 import static org.junit.Assert.*;
 
@@ -12,12 +12,13 @@ import java.util.Map.Entry;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import com.zunama.DawgWordable.Wordable;
+import fr.hayj.dawg.DawgStateWordable;
+import fr.hayj.dawg.DawgWordable;
+import fr.hayj.dawg.DawgWordable.Wordable;
 
 public class DawgTestWordable
 {
 	@Test
-	@Ignore
 	public void test1()
 	{
 		ArrayList<Wordable> frenchVoc = loadFrenchVoc();
@@ -122,7 +123,6 @@ public class DawgTestWordable
 		{
 			return this.word;
 		}
-
 	}
 
 	private ArrayList<Wordable> loadFrenchVoc()
@@ -130,7 +130,7 @@ public class DawgTestWordable
 		try
 		{
 			BufferedReader br = new BufferedReader(new FileReader(
-					"/tmp/ikcom-dictionary/liste.de.mots.francais.frgut.txt"));
+					"/tmp/ikcom-dictionary/liste.de.mots.francais.frgut.utf8.txt"));
 			String word = "";
 			ArrayList<Wordable> frenchVoc = new ArrayList<Wordable>();
 			while((word = br.readLine()) != null)

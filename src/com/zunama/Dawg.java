@@ -10,17 +10,17 @@ public class Dawg {
     private int totalEdges = 0;
 
     private String currentPrefix;
-    
-    public DawgState getRoot()
-    {
-    	return this.root;
-    }
 
     public Dawg(List<String> words) {
         root = new DawgState();
         root.setEndWord(false);
         insertWords(words);
         register = null;
+    }
+    
+    public DawgState getRoot()
+    {
+    	return this.root;
     }
 
     public boolean search(String word) {

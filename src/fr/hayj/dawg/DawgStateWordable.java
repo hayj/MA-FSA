@@ -1,10 +1,11 @@
-package com.zunama;
+package fr.hayj.dawg;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.zunama.DawgWordable.Wordable;
+import fr.hayj.dawg.DawgWordable.Wordable;
 
+@Deprecated
 public class DawgStateWordable
 {
 	private static int nextId = 0;
@@ -12,8 +13,8 @@ public class DawgStateWordable
 	private int id;
 	private LinkedHashMap<Character, DawgStateWordable> edges = new LinkedHashMap<Character, DawgStateWordable>();
 	private boolean endWord = false;
-
 	private Wordable wordable = null;
+	private DawgWordable subDawg;
 
 	public DawgStateWordable()
 	{
@@ -60,14 +61,33 @@ public class DawgStateWordable
 		this.endWord = endWord;
 	}
 
-	public void setEndWord(boolean endWord, Wordable wordable)
+	public void setWordable(Wordable wordable)
 	{
-		this.endWord = endWord;
 		this.wordable = wordable;
 	}
 
 	public Wordable getWordable()
 	{
 		return this.wordable;
+	}
+
+	public DawgWordable getSubDawg()
+	{
+		return subDawg;
+	}
+
+	public void setSubDawg(DawgWordable subDawg)
+	{
+		this.subDawg = subDawg;
+	}
+
+	public boolean hasSubDawg()
+	{
+		return this.subDawg != null;
+	}
+
+	public boolean isEndWordSequence()
+	{
+		return this.subDawg == null;
 	}
 }
