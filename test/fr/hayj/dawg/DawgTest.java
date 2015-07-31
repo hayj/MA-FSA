@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import fr.hayj.dawg.Dawg.Wordable;
@@ -17,6 +18,7 @@ import fr.hayj.dawg.Dawg.Wordable;
 public class DawgTest
 {
 	@Test
+	@Ignore
 	public void test1()
 	{
 		ArrayList<String> frenchVoc = loadFrenchVoc();
@@ -65,6 +67,7 @@ public class DawgTest
 	}
 
 	@Test
+	@Ignore
 	public void test2()
 	{
 		ArrayList<Wordable> wordables = new ArrayList<Wordable>();

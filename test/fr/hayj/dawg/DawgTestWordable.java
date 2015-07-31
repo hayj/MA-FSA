@@ -19,6 +19,7 @@ import fr.hayj.dawg.DawgWordable.Wordable;
 public class DawgTestWordable
 {
 	@Test
+	@Ignore
 	public void test1()
 	{
 		ArrayList<Wordable> frenchVoc = loadFrenchVoc();
@@ -69,6 +70,7 @@ public class DawgTestWordable
 	}
 	
 	@Test
+	@Ignore
 	public void test2()
 	{
 		ArrayList<Wordable> voc = new ArrayList<Wordable>();
