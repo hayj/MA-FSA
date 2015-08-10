@@ -56,7 +56,7 @@ public class Dawg
 		for(Wordable wordable : wordables)
 		{
 			DawgState state = this.getLastState(wordable.getWord());
-			// TODO to delete :
+			// To delete :
 			if(!state.isEndWord())
 				System.out.println("DawgStateWordable ERROR !!!");
 			state.setWordable(wordable);

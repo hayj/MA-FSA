@@ -29,7 +29,7 @@ public class DawgTest
 		long duration = stopTime - startTime;
 		System.out.println("Words count: " + frenchVoc.size());
 		System.out.println("Total Edges: " + dawg.getTotalEdges());
-		System.out.println("Built DAWG in: " + ((double) duration / 1000.0) + " secondes");
+		System.out.println("Built DAWG in: " + ((double) duration / 1000.0) + " seconds");
 		assertTrue(dawg.getTotalEdges() == 35843 && dawg.getTotalEdges() <= frenchVoc.size());
 
 		startTime = System.currentTimeMillis();

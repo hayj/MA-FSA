@@ -35,7 +35,7 @@ public class DawgWordable
 		for(Entry<String, Wordable> entry : wordables.entrySet())
 		{
 			DawgStateWordable state = this.getLastState(entry.getKey());
-			//TODO to delete :
+			//To delete :
 			if(!state.isEndWord())
 				System.out.println("DawgStateWordable ERROR !!!");
 			state.setWordable(entry.getValue());
